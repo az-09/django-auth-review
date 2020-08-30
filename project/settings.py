@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'survey.apps.SurveyConfig',
     'widget_tweaks',
+    'guardian',
 ]
 
 MIDDLEWARE = [
@@ -125,3 +126,8 @@ STATIC_URL = '/static/'
 LOGOUT_REDIRECT_URL='/login/'
 LOGIN_REDIRECT_URL='/profile/'
 LOGIN_URL='/login/' # the mixin where to send unauthenticated users when they try to access protected views
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
+]

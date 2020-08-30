@@ -9,5 +9,7 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('surveys/create/', views.SurveyCreateView.as_view(), name='survey_create'),
-
+    path('survey-assignment/<int:assignment_id>/', views.SurveyAssignmentView.as_view(), name='survey_assignment'),
+    path('survey-management/<int:survey_id>/',views.SurveyManagerView.as_view(), name='survey_management'),
+    path('survey-results/<int:survey_id>/', views.SurveyResultsView.as_view(), name='survey_results'),
 ]
