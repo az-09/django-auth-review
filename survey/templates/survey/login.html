@@ -1,5 +1,6 @@
 {% extends 'survey/base.html' %}
 {% load widget_tweaks %}
+{% load socialaccount %}
 
 {% block content %}
 
@@ -40,6 +41,19 @@
                 
             </div>
           </form>
+          <hr>
+          <label for="" class="label">Or login with Google</label>
+          <div class="field">
+            <div class="control">
+              <a href="{% provider_login_url 'google' %}" class="button">
+                <span class="icon">
+                  <i class="fab fa-google-plus-g"></i>
+                </span>
+                <span>Google</span>
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
