@@ -131,6 +131,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+SITE_ID = 2 # for django-allauth
 
 LOGOUT_REDIRECT_URL='/login/'
 LOGIN_REDIRECT_URL='/profile/'
@@ -154,3 +155,11 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
+
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = 587
+PASSWORD_RESET_TIMEOUT_DAYS = 2

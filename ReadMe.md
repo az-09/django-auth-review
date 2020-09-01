@@ -85,7 +85,8 @@
 
         Display name: 127.0.0.1:8000 
 
-Reference
+
+### Reference
 
 https://thecodinginterface.com/blog/django-auth-part1/
 
@@ -97,4 +98,5 @@ https://medium.com/@whizzoe/in-5-mins-set-up-google-login-to-sign-up-users-on-dj
 
 https://django-allauth.readthedocs.io/en/latest/installation.html
 
+https://thecodinginterface.com/blog/django-auth-part4/
 

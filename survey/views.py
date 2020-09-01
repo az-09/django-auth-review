@@ -1,6 +1,6 @@
 import json
 
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Permission, Group
 from django.shortcuts import redirect, render, reverse, get_object_or_404
@@ -8,23 +8,44 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
 from django.views import View
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_text
+from django.template.loader import get_template
+from django.core.mail import EmailMessage
+from django.conf import settings
 
 from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import assign_perm, get_objects_for_user
 from guardian.conf import settings as guardian_settings
 
 from .models import Survey, Question, Choice, SurveyAssignment, SurveyResponse
-
+from .tokens import user_tokenizer
+from .forms import RegistrationForm
 
 class RegisterView(View):
     def get(self, request):
-        return render(request, 'survey/register.html', { 'form': UserCreationForm() })
+        return render(request, 'survey/register.html', { 'form': RegistrationForm() })
 
     def post(self, request):
-        form = UserCreationForm(request.POST)
+        form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            return redirect(reverse('login'))
+            user = form.save(commit=False)
+            user.is_valid = False
+            user.save()
+            token = user_tokenizer.make_token(user)
+            user_id = urlsafe_base64_encode(force_bytes(user.id))
+            url = 'http://localhost:8000' + reverse('confirm_email', kwargs={'user_id': user_id, 'token': token})
+            message = get_template('survey/register_email.html').render({
+              'confirm_url': url
+            })
+            mail = EmailMessage('Django Survey Email Confirmation', message, to=[user.email], from_email=settings.EMAIL_HOST_USER)
+            mail.content_subtype = 'html'
+            mail.send()
+
+            return render(request, 'survey/login.html', {
+              'form': AuthenticationForm(),
+              'message': f'A confirmation email has been sent to {user.email}. Please confirm to finish registering'
+            })
 
         return render(request, 'survey/register.html', { 'form': form })
 
@@ -221,3 +242,20 @@ class SurveyResultsView(PermissionRequiredMixin, View):
         context = {'survey': self.obj, 'questions': questions}
         
         return render(request, 'survey/survey_results.html', context)
+
+class ConfirmRegistrationView(View):
+    def get(self, request, user_id, token):
+        user_id = force_text(urlsafe_base64_decode(user_id))
+
+        user = User.objects.get(pk=user_id)
+
+        context = {
+            'form': AuthenticationForm(),
+            'message': 'Registration confirmation error. Please click the reset password to generate a new confirmation email.'
+        }
+        if user and user_tokenizer.check_token(user, token):
+            user.is_valid = True
+            user.save()
+            context['message'] = 'Registration complete. Please login.'
+
+        return render(request, 'survey/login.html', context)

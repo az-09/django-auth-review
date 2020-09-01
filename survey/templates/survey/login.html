@@ -16,6 +16,7 @@
           <h2 class="subtitle">
             Login
           </h2>
+          <p class='has-text-centered help is-danger'>{{ message }}</p>
 
           <form action="{% url 'login' %}" id="login-form" method="POST">
             {% csrf_token %}
@@ -33,14 +34,17 @@
                 {% endfor %}
                 </div>
             {% endfor %}
-        
-            <div class="field">
+                
+            <div class="field is-grouped">
                 <div class="control">
                     <button class="button is-link">Submit</button>
                 </div>
-                
+                <div class="control">
+                  <a href="{% url 'reset_password' %}">Forgot password?</a>
+                </div>
             </div>
           </form>
+          
           <hr>
           <label for="" class="label">Or login with Google</label>
           <div class="field">
